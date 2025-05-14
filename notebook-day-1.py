@@ -213,6 +213,14 @@ def _(mo):
     return
 
 
+@app.cell
+def _():
+    g = 1
+    M = 1
+    l = 1
+    return M, g, l
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
@@ -222,6 +230,27 @@ def _(mo):
     Compute the force $(f_x, f_y) \in \mathbb{R}^2$ applied to the booster by the reactor.
     """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""$$f_{x} : est\ la\ composante\ horizontale $$   """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""$$f_{y} : est\ la\ composante\ verticale $$   """)
+    return
+
+
+@app.cell
+def _(np):
+    def forces(f, theta, phi):
+        f_x = - f*np.sin(theta + phi)
+        f_y = f*np.cos(theta + phi)
+        return np.array([f_x, f_y])
     return
 
 
@@ -237,6 +266,17 @@ def _(mo):
     return
 
 
+@app.cell
+def _(np):
+    def equa_ode(xy, f, phi, theta, M, g):
+        x, y, vx, vy = xy
+        alpha = theta + phi
+        ax = - (f / M) * np.sin(alpha)
+        ay = (f / M) * np.cos(alpha) - g
+        return np.array([vx, vy, ax, ay])
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
@@ -249,6 +289,13 @@ def _(mo):
     return
 
 
+@app.cell
+def _(M, l):
+    J = 1/3 * M * l**2
+    J
+    return (J,)
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
@@ -258,6 +305,15 @@ def _(mo):
     Give the ordinary differential equation that governs the tilt angle $\theta$.
     """
     )
+    return
+
+
+@app.cell
+def _(np):
+    def theta_ode(theta_vec, f, phi, J, l):
+        theta, omega = theta_vec
+        domega = - (l * f * np.sin(phi)) / J
+        return np.array([omega, domega])
     return
 
 
@@ -302,6 +358,60 @@ def _(mo):
     Test this typical example with your function `redstart_solve` and check that its graphical output makes sense.
     """
     )
+    return
+
+
+@app.cell
+def _(J, M, g, l, np):
+    from scipy.integrate import solve_ivp
+
+    def redstart_solve(t_span, y0, f_phi): 
+        def booster_ode(t, y):
+            x, dx, y_pos, dy, theta, dtheta = y
+            f, phi = f_phi(t, y)
+            sin_theta = np.sin(theta)
+            cos_theta = np.cos(theta)
+            force_angle = theta + phi
+            fx = f * np.sin(force_angle)
+            fy = f * np.cos(force_angle)
+            ddx = fx / M
+            ddy = fy / M - g
+            ddtheta = (l * f * np.sin(phi)) / J
+            return [dx, ddx, dy, ddy, dtheta, ddtheta]
+
+        sol_raw = solve_ivp(booster_ode, t_span, y0, dense_output=True)
+        def sol(t):
+            t_arr = np.atleast_1d(t)
+            y_out = sol_raw.sol(t_arr)
+            return y_out if t_arr.ndim else y_out[:, 0]
+        return sol
+    return (redstart_solve,)
+
+
+@app.cell
+def _(l, np, plt, redstart_solve):
+    def free_fall_example():
+        t_span = [0.0, 5.0]
+        y0 = [0.0, 0.0, 10.0, 0.0, 0.0, 0.0] # state: [x, dx, y, dy, theta, dtheta]
+        def f_phi(t, y):
+            return np.array([0.0, 0.0]) # input [f, phi]
+        sol = redstart_solve(t_span, y0, f_phi)
+        t = np.linspace(t_span[0], t_span[1], 1000)
+        y_t = sol(t)[2]
+        plt.plot(t, y_t, label=r"$y(t)$ (height in meters)")
+        plt.plot(t, l * np.ones_like(t), color="grey", ls="--", label=r"$y=\ell$")
+        plt.title("Free Fall")
+        plt.xlabel("time $t$")
+        plt.grid(True)
+        plt.legend()
+        return plt.gcf()
+
+    return (free_fall_example,)
+
+
+@app.cell
+def _(free_fall_example):
+    free_fall_example()
     return
 
 
