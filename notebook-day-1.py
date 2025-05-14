@@ -140,7 +140,7 @@ def _(np):
             [np.cos(alpha), -np.sin(alpha)], 
             [np.sin(alpha),  np.cos(alpha)]
         ])
-    return
+    return (R,)
 
 
 @app.cell(hide_code=True)
@@ -524,6 +524,54 @@ def _(mo):
     return
 
 
+@app.cell
+def _(M, R, g, l, np, plt):
+    def dessiner_booster(x, y, theta, f, phi):
+        booster_length = 2*l  
+        booster_width = 0.1   
+
+        booster = np.array([
+            [-booster_width / 2, -booster_length / 2],
+            [booster_width / 2, -booster_length / 2],
+            [booster_width / 2, booster_length / 2],
+            [-booster_width / 2, booster_length / 2],
+            [-booster_width / 2, -booster_length / 2]
+        ])
+
+        rotated_booster = (R(theta) @ booster.T).T + np.array([x, y])
+
+        flame_base_local = np.array([0, -booster_length / 2])
+        flame_base_global = R(theta) @ flame_base_local + np.array([x, y])
+
+        flame_length = (f / (M * g)) * l
+        flame_angle = theta + phi
+        flame_tip = flame_base_global + flame_length * np.array([np.sin(flame_angle), -np.cos(flame_angle)])
+
+        landing_zone = np.array([[-0.6, 0], [0.6, 0], [0.6, 0.2], [-0.6, 0.2]])
+
+        fig, ax = plt.subplots(figsize=(4, 8))
+        ax.set_facecolor("white")
+
+        ax.plot(rotated_booster[:, 0], rotated_booster[:, 1], color='black', linewidth=4)
+        ax.plot([flame_base_global[0], flame_tip[0]],
+                [flame_base_global[1], flame_tip[1]],
+                color='red', linewidth=5)
+
+        ax.add_patch(plt.Polygon(landing_zone, color="#e6994c"))
+        ax.set_xlim(-2, 2)
+        ax.set_ylim(0, 12)
+        ax.set_aspect('equal')
+        ax.grid(True)
+        plt.show()
+    return (dessiner_booster,)
+
+
+@app.cell
+def _(dessiner_booster, np):
+    dessiner_booster(x=0, y=10, theta=np.pi/6, f=0.7, phi=0.2)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
@@ -555,6 +603,11 @@ def _(mo):
     As an intermediary step, you can begin with production of image snapshots of the booster location (every 1 sec).
     """
     )
+    return
+
+
+@app.cell
+def _():
     return
 
 
