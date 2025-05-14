@@ -372,11 +372,11 @@ def _(J, M, g, l, np):
             sin_theta = np.sin(theta)
             cos_theta = np.cos(theta)
             force_angle = theta + phi
-            fx = f * np.sin(force_angle)
+            fx = - f * np.sin(force_angle)
             fy = f * np.cos(force_angle)
             ddx = fx / M
             ddy = fy / M - g
-            ddtheta = (l * f * np.sin(phi)) / J
+            ddtheta = - (l * f * np.sin(phi)) / J
             return [dx, ddx, dy, ddy, dtheta, ddtheta]
 
         sol_raw = solve_ivp(booster_ode, t_span, y0, dense_output=True)
@@ -426,6 +426,81 @@ def _(mo):
     Simulate the corresponding scenario to check that your solution works as expected.
     """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    ### Choix de la trajectoire
+
+    Nous avons choisi un polynôme cubique pour \( y(t) \) car c'est la fonction la plus simple qui satisfait les quatre conditions aux limites nécessaires :
+
+    - \( y(0) = 10 \)  
+    - \( \dot{y}(0) = 0 \) 
+    - \( y(5) = \ell \)  
+    - \( \dot{y}(5) = 0 \) 
+
+    Un polynôme cubique :
+
+    \[
+    y(t) = a t^3 + b t^2 + c t + d
+    \]
+
+    Cette fonction possède quatre coefficients \( (a, b, c, d) \), ce qui nous permet de les déterminer de manière unique en utilisant les quatre conditions ci-dessus. 
+
+    Après un petit calcul on a trouvé que : a = 0.144, b = -1.08, c = 0 et d = 10
+    Grâce à l'équation différentielle on a remonté à la force f(t).
+
+    On a 
+
+    \[
+    f(t) = M*g + M* \ddot{y}(t)
+    \]
+
+    Après un calcul on a :
+
+    \[
+    f(t) =  0.864*t - 1.16
+    \]
+    """
+    )
+    return
+
+
+@app.cell
+def _(np, plt):
+    a, b, c, d = 0.144, -1.08, 0, 10
+    t = np.linspace(0, 5, 100)
+    y = a * t**3 + b * t**2 + c * t + d
+
+    plt.figure(figsize=(8, 4))
+    plt.plot(t, y, label=r"$y(t)$", color="blue")
+    plt.title("Tracé de $y(t)$")
+    plt.xlabel("$t$")
+    plt.ylabel("$y(t)$")
+    plt.grid(True, linestyle="--", alpha=0.7)
+    plt.legend()
+    plt.show()
+    return
+
+
+@app.cell
+def _(np, plt):
+    tt = np.linspace(0, 5, 100)
+    yy = 0.864 * tt - 1.16
+
+    plt.figure(figsize=(8, 4))
+    plt.plot(tt, yy, label=r"$f(t)$", color="red", linewidth=2)
+    plt.title("Tracé de $f(t)$")
+    plt.xlabel("$t$")
+    plt.ylabel("$f(t)$")
+    plt.grid(True, linestyle="--", alpha=0.7)
+    plt.axhline(0, color='black', linewidth=0.5)  
+    plt.axvline(0, color='black', linewidth=0.5)  
+    plt.legend()
+    plt.show()
     return
 
 
