@@ -1163,7 +1163,7 @@ def _(J, M, g, l, np):
         [0, 0],
         [-l*M*g/J, 0]
     ])
-    return
+    return A, B
 
 
 @app.cell(hide_code=True)
@@ -1193,6 +1193,26 @@ def _(mo):
     Is the linearized model controllable?
     """
     )
+    return
+
+
+@app.cell
+def _(A, B, np):
+    from numpy.linalg import matrix_rank
+
+    n = A.shape[0]
+    controllability_matrix = B
+    for i in range(1, n):
+        controllability_matrix = np.hstack((controllability_matrix, np.linalg.matrix_power(A, i) @ B))
+
+    controllability_rank = matrix_rank(controllability_matrix)
+    controllability_rank, n  
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""On a le rang de la matrice de contrôlabilité est 6 qui égale à la dimension du systéme 6 d'où le systéme est controllable""")
     return
 
 
