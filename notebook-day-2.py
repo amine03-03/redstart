@@ -1053,6 +1053,50 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    *Posons les variables d'erreur :*
+
+    \[
+    \begin{cases}
+    \Delta x = x - x_e \\
+    \Delta y = y - y_e \\
+    \Delta \theta = \theta \\
+    \Delta \phi = \phi \\
+    \Delta f = f - Mg
+    \end{cases}
+    \]
+
+    ---
+    *Et après approximation du sinus, cosinus et en éliminant les erreurs du deuxième ordre on a :*
+
+    \[
+    \begin{cases}
+    M \frac{d^2 \Delta x}{dt^2} = -f (\Delta \theta + \Delta \phi) \\
+    M \frac{d^2 \Delta y}{dt^2} = \Delta f \\
+    J \frac{d^2 \Delta \theta}{dt^2} = -l \Delta \phi (\Delta f + Mg)
+    \end{cases}
+    \]
+
+    ---
+
+    *D'où :*
+
+    \[
+    \begin{cases}
+    \frac{d^2 \Delta x}{dt^2} = \frac{-\Delta f - Mg}{M} (\Delta \theta + \Delta \phi) = -g (\Delta \theta + \Delta \phi) \\
+    \frac{d^2 \Delta y}{dt^2} = \frac{\Delta f}{M} \\
+    \frac{d^2 \Delta \theta}{dt^2} = -\frac{l}{J} \Delta \phi (\Delta f + Mg)
+    = -\frac{lMg}{J} \Delta f
+    \end{cases}
+    \]
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Standard Form
 
     What are the matrices $A$ and $B$ associated to this linear model in standard form?
