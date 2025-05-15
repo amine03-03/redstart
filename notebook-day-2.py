@@ -1634,59 +1634,53 @@ def _(mo):
     \Rightarrow P(s) = s^2 - \left(\frac{lMg}{J}k_4\right)s + \left(\frac{lMg}{J}k_3\right)
     \]
 
-    ---
-
-
-    Pour une convergence en *moins de 20 secondes* (sans dépassement), on peut choisir deux pôles complexes conjugués avec une partie réelle négative modérée :
-
-    \[
-    \lambda_{1,2} = -0.1 \pm 0.1j
-    \]
-
-    Ces pôles donnent :
-
-    - *Trace* : \( \lambda_1 + \lambda_2 = -0.2 \)
-    - *Déterminant* : \( \lambda_1 \cdot \lambda_2 = (-0.1)^2 + (0.1)^2 = 0.02 \)
-
-    ---
-
-
-    On identifie :
-
-    \[
-    \frac{lMg}{J} k_4 = 0.2 \quad \Rightarrow \quad k_4 = \frac{0.2 J}{lMg}
-    \]
-
-    \[
-    \frac{lMg}{J} k_3 = 0.02 \quad \Rightarrow \quad k_3 = \frac{0.02 J}{lMg}
-    \]
-
-    ---
-
-    \[
-    k_4 = \frac{0.2 \cdot \frac{1}{3}}{1 \cdot 1 \cdot 1} = \frac{0.2}{3} \approx 0.0667
-    \]
-
-    \[
-    k_3 = \frac{0.02 \cdot \frac{1}{3}}{1 \cdot 1 \cdot 1} = \frac{0.02}{3} \approx 0.0067
-    \]
-
-    ---
-
-
-    \[
-    K = 
-    \begin{bmatrix}
-    0 \\
-    0 \\
-    0.0067 \\
-    0.0667
-    \end{bmatrix}
-    \]
-
-    Le système en boucle fermée est *asymptotiquement stable*, avec une dynamique lente mais contrôlée, respectant les contraintes de stabilité et de saturation sur \( \theta(t) \) et \( \varphi(t) \).
+    En essayant plusieures valeurs on trouver les meilleures valeurs: K3 = 1 et K4=0.6
     """
     )
+    return
+
+
+@app.cell
+def _(J, M, g, l, np, plt):
+    from scipy.integrate import solve_ivp
+
+    k3 = 1    
+    k4 = 0.6    
+
+
+    A_open = np.array([[0, 1],
+                       [0, 0]])
+
+    Bp = np.array([[0],
+                  [l * M * g / J]])  
+
+    K = np.array([[k3, k4]])
+
+    A_cl = A_open - Bp @ K
+
+    def closed_loop(t, x):
+        return A_cl @ x
+
+    x0 = [np.pi/4, 0]
+    t_span = (0, 40)
+    t_eval = np.linspace(*t_span, 1000)
+    sol = solve_ivp(closed_loop, t_span, x0, t_eval=t_eval)
+
+    thetap = sol.y[0]
+    dtheta = sol.y[1]
+    phi = -(k3 * thetap + k4 * dtheta)
+
+    plt.figure(figsize=(10,5))
+    plt.plot(sol.t, thetap, label=r'$\theta(t)$ (rad)')
+    plt.plot(sol.t, phi, label=r'$\varphi(t)$ (rad)', linestyle='--')
+    plt.axhline(np.pi/2, color='red', linestyle=':', label=r'$\pm \pi/2$')
+    plt.axhline(-np.pi/2, color='red', linestyle=':')
+    plt.title('Réponse corrigée en boucle fermée')
+    plt.xlabel('Temps (s)')
+    plt.ylabel('Angle (rad)')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
     return
 
 
@@ -1825,6 +1819,12 @@ def _(mo):
     Explain how you find the proper design parameters!
     """
     )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r""" """)
     return
 
 
