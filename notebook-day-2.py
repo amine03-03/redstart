@@ -1110,11 +1110,77 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    # Système linéarisé
+
+    On considère le vecteur d’état :
+
+    \[
+    \Delta Z =
+    \begin{pmatrix}
+    \Delta x \\
+    \Delta \dot{x} \\
+    \Delta y \\
+    \Delta \dot{y} \\
+    \Delta \theta \\
+    \Delta \dot{\theta}
+    \end{pmatrix},
+    \quad
+    u =
+    \begin{pmatrix}
+    \Delta \phi \\
+    \Delta f
+    \end{pmatrix}
+    \]
+
+    Le système linéarisé s’écrit :
+
+    \[
+    \boxed{
+    \Delta \dot{Z} = A \Delta Z + B u
+    }
+    \]
+    """
+    )
+    return
+
+
+@app.cell
+def _(J, M, g, l, np):
+    A = np.array([
+        [0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, -g, 0],
+        [0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0]
+    ])
+
+    B = np.array([
+        [0, 0],
+        [-g, 0],
+        [0, 0],
+        [0, 1/M],
+        [0, 0],
+        [-l*M*g/J, 0]
+    ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Stability
 
     Is the generic equilibrium asymptotically stable?
     """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""On a les valeurs propres de la matrice A sont toutes nulles (matrice triangulaire supérieure), d'où l'équilibre est non asymptotiquement stable.""")
     return
 
 
