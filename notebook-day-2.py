@@ -963,6 +963,83 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    ## L'équilibre
+
+    ### Variables d'état
+    \[
+    Z = \begin{pmatrix}
+    x \\
+    y \\
+    \theta \\
+    \dot{x} \\
+    \dot{y} \\
+    \dot{\theta}
+    \end{pmatrix}
+    \quad ; \quad
+    \dot{Z} = \begin{pmatrix}
+    \dot{x} \\
+    \dot{y} \\
+    \dot{\theta} \\
+    \ddot{x} \\
+    \ddot{y} \\
+    \ddot{\theta}
+    \end{pmatrix}
+    = f(Z) = \begin{pmatrix}
+    \dot{x} \\
+    \dot{y} \\
+    \dot{\theta} \\
+    -\frac{f}{M} \sin(\theta + \phi) \\
+    \frac{f}{M} \cos(\theta + \phi) - g \\
+    -\frac{l \sin(\phi) f}{J}
+    \end{pmatrix}
+    \]
+
+    ---
+
+    ### Calcul
+
+    \[
+    f(Z) = 0
+    \]
+
+    Conditions :
+
+    \[
+    \begin{cases}
+    \dot{x} = 0 \\
+    \dot{y} = 0 \\
+    \sin(\theta + \phi) = 0 \\
+    \cos(\theta + \phi) = \frac{Mg}{f} \\
+    \dot{\theta} = 0 \\
+    \sin(\phi) = 0
+    \end{cases}
+    \Rightarrow
+    \begin{cases}
+    \dot{x} = 0 \\
+    \dot{y} = 0 \\
+    \dot{\theta} = 0 \\
+    \cos(\theta) = \frac{Mg}{f} \\
+    \phi = 0
+    \end{cases}
+    \Rightarrow
+    \begin{cases}
+    \dot{x} = 0 \\
+    \dot{y} = 0 \\
+    \dot{\theta} = 0 \\
+    f = Mg \\
+    \phi = 0 \\
+    \theta = 0
+    \end{cases}
+    \]
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Linearized Model
 
     Introduce the error variables $\Delta x$, $\Delta y$, $\Delta \theta$, and $\Delta f$ and $\Delta \phi$ of the state and input values with respect to the generic equilibrium configuration.
