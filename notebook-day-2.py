@@ -1368,6 +1368,150 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    ## Étude du système 
+
+    Nous considérons un système dont les équations du mouvement sont données avec les conditions initiales suivantes :
+
+    - \(\phi(t) = 0\)
+    - \(\theta(0) = \dfrac{\pi}{4}\), \(\dot{\theta}(0) = 0\)
+    - \(y(0) = 10\), \(\dot{y}(0) = -2\)
+
+    ---
+
+    ## Résolution de l’équation pour \(\theta(t)\)
+
+    Nous partons de l’information suivante :
+
+    \[
+    \phi(t) = 0 \Rightarrow \ddot{\theta}(t) = 0
+    \]
+
+    ### Intégration de \(\ddot{\theta} = 0\)
+
+    \[
+    \dot{\theta}(t) = C_1
+    \]
+
+    Avec la condition initiale \(\dot{\theta}(0) = 0\), on obtient :
+
+    \[
+    C_1 = 0 \Rightarrow \dot{\theta}(t) = 0
+    \]
+
+    On intègre à nouveau :
+
+    \[
+    \theta(t) = C_2
+    \]
+
+    Avec \(\theta(0) = \dfrac{\pi}{4} \Rightarrow C_2 = \dfrac{\pi}{4}\)
+
+    ### Résultat pour \(\theta(t)\)
+
+    \[
+    \theta(t) = \dfrac{\pi}{4} \quad \text{(constante dans le temps)}
+    \]
+
+    ---
+
+    ## Résolution de l’équation pour \(y(t)\)
+
+    L’équation différentielle est :
+
+    \[
+    \ddot{y}(t) = g\left(\cos(\theta(t)) - 1\right)
+    \]
+
+    Sachant que \(\theta(t) = \dfrac{\pi}{4}\), on obtient :
+
+    \[
+    \ddot{y}(t) = g\left(\dfrac{\sqrt{2}}{2} - 1\right)
+    \]
+
+    Notons cette constante \(a = g\left(\dfrac{\sqrt{2}}{2} - 1\right)\)
+
+    ### Intégration
+
+    1ère intégration :
+
+    \[
+    \dot{y}(t) = at + C_3
+    \]
+
+    Avec \(\dot{y}(0) = -2\), on obtient :
+
+    \[
+    C_3 = -2 \Rightarrow \dot{y}(t) = at - 2
+    \]
+
+    2ème intégration :
+
+    \[
+    y(t) = \dfrac{1}{2}at^2 - 2t + C_4
+    \]
+
+    Avec \(y(0) = 10 \Rightarrow C_4 = 10\)
+
+    ### Résultat pour \(y(t)\)
+
+    \[
+    y(t) = \dfrac{1}{2}g\left(\dfrac{\sqrt{2}}{2} - 1\right)t^2 - 2t + 10
+    \]
+
+    ---
+
+    ## Les
+    solutions
+
+    \[
+    \boxed{
+    \begin{cases}
+    \theta(t) = \dfrac{\pi}{4} \\
+    y(t) = \dfrac{1}{2}g\left(\dfrac{\sqrt{2}}{2} - 1\right)t^2 - 2t + 10
+    \end{cases}
+    }
+    \]
+    """
+    )
+    return
+
+
+@app.cell
+def _(g, np, plt):
+    t = np.linspace(0, 5, 500)
+    a = g * (np.sqrt(2)/2 - 1)  # accélération constante
+
+    y = 0.5 * a * t**2 - 2 * t + 10
+
+    theta = np.full_like(t, np.pi / 4)
+
+    plt.figure(figsize=(12, 5))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(t, y, label="y(t)", color='blue')
+    plt.xlabel("Temps t")
+    plt.ylabel("Position y")
+    plt.title("Évolution de y(t)")
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(1, 2, 2)
+    plt.plot(t, theta, label="θ(t)", color='green')
+    plt.xlabel("Temps t")
+    plt.ylabel("Angle θ (rad)")
+    plt.title("Évolution de θ(t)")
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Manually Tuned Controller
 
     Try to find the two missing coefficients of the matrix 
