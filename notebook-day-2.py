@@ -1085,7 +1085,7 @@ def _(mo):
     \frac{d^2 \Delta x}{dt^2} = \frac{-\Delta f - Mg}{M} (\Delta \theta + \Delta \phi) = -g (\Delta \theta + \Delta \phi) \\
     \frac{d^2 \Delta y}{dt^2} = \frac{\Delta f}{M} \\
     \frac{d^2 \Delta \theta}{dt^2} = -\frac{l}{J} \Delta \phi (\Delta f + Mg)
-    = -\frac{lMg}{J} \Delta f
+    = -\frac{lMg}{J} \Delta \phi
     \end{cases}
     \]
     """
@@ -1228,6 +1228,126 @@ def _(mo):
     Check the controllability of this new system.
     """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    # Système Réduit
+
+    ## Variables d’état
+
+    \[
+    \Delta Z_{lat} = \begin{pmatrix}
+    \Delta x \\
+    \Delta \dot{x} \\
+    \Delta \theta \\
+    \Delta \dot{\theta}
+    \end{pmatrix}
+    \]
+
+    - \(\Delta x\) : position latérale  
+    - \(\Delta \dot{x}\) : vitesse latérale  
+    - \(\Delta \theta\) : inclinaison  
+    - \(\Delta \dot{\theta}\) : vitesse angulaire  
+
+    ---
+
+
+    ## Équations linéarisées
+
+    \[
+    \begin{cases}
+    \ddot{x} = -g(\Delta \theta + \Delta \phi) \\
+    \ddot{\theta} = -\dfrac{l M g}{J} \Delta \phi
+    \end{cases}
+    \]
+
+    ---
+
+    ## Forme d’état (ordre 1)
+
+    \[
+    \frac{d}{dt} \Delta Z_{lat} = A_{lat} \Delta Z_{lat} + B_{lat} \Delta \phi
+    \]
+
+    avec
+
+    \[
+    A_{lat} = \begin{pmatrix}
+    0 & 1 & 0 & 0 \\
+    0 & 0 & -g & 0 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 0
+    \end{pmatrix}
+    ,
+    \quad
+    B_{lat} = \begin{pmatrix}
+    0 \\
+    - g \\
+    0 \\
+    -\dfrac{l M g}{J}
+    \end{pmatrix}
+    \]
+
+    ---
+
+    ## Contrôlabilité
+
+    La matrice de contrôlabilité est
+
+    \[
+    C = \begin{bmatrix}
+    B_{lat} & A_{lat} B_{lat} & A_{lat}^2 B_{lat} & A_{lat}^3 B_{lat}
+    \end{bmatrix}
+    \]
+
+    avec
+
+    \[
+    \mathrm{rang}(C) = 4
+    \]
+
+    Ce qui montre que le système est complètement contrôlable via \(\Delta \phi\).
+    """
+    )
+    return
+
+
+@app.cell
+def _(J, M, g, l, np):
+    A_lat = np.array([
+        [0, 1, 0, 0],
+        [0, 0, -g, 0],
+        [0, 0, 0, 1],
+        [0, 0, 0, 0]
+    ])
+
+    B_lat = np.array([
+        [0],
+        [-g],
+        [0],
+        [-(l * M * g) / J]
+    ])
+
+    C = np.hstack([
+        B_lat,
+        A_lat @ B_lat,
+        np.linalg.matrix_power(A_lat, 2) @ B_lat,
+        np.linalg.matrix_power(A_lat, 3) @ B_lat
+    ])
+
+    rang_C = np.linalg.matrix_rank(C)
+
+    print("Matrice de contrôlabilité C :\n", C)
+    print(f"Rang de la matrice de contrôlabilité : {rang_C}")
+
+    if rang_C == A_lat.shape[0]:
+        print("Le système est complètement contrôlable.")
+    else:
+        print("Le système n'est pas complètement contrôlable.")
     return
 
 
