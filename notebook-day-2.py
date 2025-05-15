@@ -1681,7 +1681,7 @@ def _(J, M, g, l, np, plt):
     plt.legend()
     plt.grid(True)
     plt.show()
-    return
+    return (solve_ivp,)
 
 
 @app.cell(hide_code=True)
@@ -1726,7 +1726,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
@@ -1772,39 +1772,116 @@ def _(mo):
 
     Pour une bonne convergence sans dépassement excessif :
 
-    $$
-    \lambda_{1,2} = -0.1 \pm 0.1j \quad \text{} \\
-    \lambda_3 = -0.3, \quad \lambda_4 = -0.5 \quad \text{}
-    $$
-
-    ---
-
-
-    On utilise la méthode de placement de pôles (par exemple avec la fonction place) pour trouver :
-
-    $$
-    K_{pp} = \begin{bmatrix}
-    k_1 & k_2 & k_3 & k_4
-    \end{bmatrix}
-    $$
-
-    Tel que la matrice fermée $A_{cl} = A - BK_{pp}$ ait les valeurs propres souhaitées.
-
-    ---
-
-
-    $$
-    K_{pp} = \begin{bmatrix}
-    2.1 & 1.5 & 20 & 7
-    \end{bmatrix}
-    $$
-
-    Ces valeurs stabilisent bien le système avec une bonne marge de sécurité sur $\Delta \phi(t)$,  
-    et garantissent une asymptotique correcte pour $\Delta x(t)$.
-
-    ---
+    On va choisir : K = [ 0.5         2.08333333 -3.08333333 -2.36111111]
     """
     )
+    return
+
+
+@app.cell
+def _(J, M, g, l, np, plt, solve_ivp):
+    from scipy.signal import place_poles
+
+    def pole_placement_controller(J, M, g, l):
+        # Matrices du système
+        A_2 = np.array([
+            [0, 1, 0, 0],
+            [0, 0, -g, 0],
+            [0, 0, 0, 1],
+            [0, 0, 0, 0]
+        ])
+        B_2 = np.array([
+            [0],
+            [-g],
+            [0],
+            [-M*g*l/J]
+        ])
+        # Pôles choisies
+        poles = [-0.5, -1.0, -1.5, -2.0]
+        # Calcul du gain K
+        K_pp = place_poles(A_2, B_2, poles).gain_matrix.flatten()
+        print("Matrice de gain K_pp :")
+        print(K_pp)
+    
+        # Matrice du système en boucle fermée
+        A_2_cl = A_2 - B_2 @ K_pp[np.newaxis, :]  # Shape correcte de K_pp
+    
+        # Fonction d'équation différentielle
+        def closed_loop_system(t, x):
+            return A_2_cl @ x
+    
+        # Conditions initiales
+        x0 = np.array([1.0, 0.0, 0.5, 0.0])  # [Δx, Δẋ, Δθ, Δθ̇]
+    
+        # Intervalle de temps
+        t_span = [0, 30]  # Simuler sur 30 secondes
+        t_eval = np.linspace(t_span[0], t_span[1], 1000)
+    
+        # Résolution de l'EDO
+        sol = solve_ivp(closed_loop_system, t_span, x0, t_eval=t_eval)
+    
+        # Extraction des résultats
+        t = sol.t
+        x = sol.y
+    
+        # Calcul de la commande Δϕ(t) = -K_pp ⋅ x(t)
+        u = -K_pp @ x
+    
+        # Tracé des états
+        plt.figure(figsize=(14, 10))
+    
+        # Δx(t)
+        plt.subplot(2, 2, 1)
+        plt.plot(t, x[0], label=r'$\Delta x(t)$')
+        plt.axhline(0, color='black', linestyle='--')
+        plt.title(r'$\Delta x(t)$')
+        plt.xlabel('Time (s)')
+        plt.ylabel(r'$\Delta x$')
+        plt.grid(True)
+    
+        # Δẋ(t)
+        plt.subplot(2, 2, 2)
+        plt.plot(t, x[1], 'g', label=r'$\Delta \dot{x}(t)$')
+        plt.axhline(0, color='black', linestyle='--')
+        plt.title(r'$\Delta \dot{x}(t)$')
+        plt.xlabel('Time (s)')
+        plt.ylabel(r'$\Delta \dot{x}$')
+        plt.grid(True)
+    
+        # Δθ(t)
+        plt.subplot(2, 2, 3)
+        plt.plot(t, x[2], 'r', label=r'$\Delta \theta(t)$')
+        plt.axhline(0, color='black', linestyle='--')
+        plt.title(r'$\Delta \theta(t)$')
+        plt.xlabel('Time (s)')
+        plt.ylabel(r'$\Delta \theta$')
+        plt.grid(True)
+    
+        # Δθ̇(t)
+        plt.subplot(2, 2, 4)
+        plt.plot(t, x[3], 'm', label=r'$\Delta \dot{\theta}(t)$')
+        plt.axhline(0, color='black', linestyle='--')
+        plt.title(r'$\Delta \dot{\theta}(t)$')
+        plt.xlabel('Time (s)')
+        plt.ylabel(r'$\Delta \dot{\theta}$')
+        plt.grid(True)
+    
+        plt.tight_layout()
+    
+        # Tracé de la commande Δϕ(t)
+        plt.figure(figsize=(10, 4))
+        plt.plot(t, u, label=r'$\Delta \phi(t)$')
+        plt.axhline(0, color='black', linestyle='--')
+        plt.title(r'$\Delta \phi(t)$')
+        plt.xlabel('Time (s)')
+        plt.ylabel(r'$\Delta \phi$')
+        plt.grid(True)
+        plt.legend()
+    
+        plt.show()
+
+
+    pole_placement_controller(J, M, g, l)
     return
 
 
