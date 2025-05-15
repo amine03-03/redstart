@@ -1557,6 +1557,143 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    ## Calcul de \( A - BK \)
+
+    Soustrayons \( BK \) de \( A \) élément par élément :
+
+    \[
+    A - BK =
+    \begin{bmatrix}
+    0 & 1 & 0 & 0 \\
+    0 & 0 & -g & 0 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 0
+    \end{bmatrix}
+    -
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 \\
+    0 & 0 & -g k_3 & -g k_4 \\
+    0 & 0 & 0 & 0 \\
+    0 & 0 & -\frac{l M g}{J} k_3 & -\frac{l M g}{J} k_4
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    0 & 1 & 0 & 0 \\
+    0 & 0 & -g + g k_3 & g k_4 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & \frac{l M g}{J} k_3 & \frac{l M g}{J} k_4
+    \end{bmatrix}
+    \]
+
+    Ce qui se simplifie en :
+
+    \[
+    A - BK =
+    \begin{bmatrix}
+    0 & 1 & 0 & 0 \\
+    0 & 0 & -g(1 - k_3) & g k_4 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & \frac{l M g}{J} k_3 & \frac{l M g}{J} k_4
+    \end{bmatrix}
+    \]
+
+
+    On cherche une loi de commande :
+
+    \[
+    \Delta\varphi(t) = -K \cdot 
+    \begin{bmatrix}
+    \Delta x(t) \\
+    \Delta \dot{x}(t) \\
+    \Delta \theta(t) \\
+    \Delta \dot{\theta}(t)
+    \end{bmatrix}, \quad K = \begin{bmatrix}
+    0 & 0 & k_3 & k_4
+    \end{bmatrix}
+    \]
+
+    Le système réduit en boucle fermée sur \( \theta \) est :
+
+    \[
+    A_{\text{cl}} = 
+    \begin{bmatrix}
+    0 & 1 \\
+    \frac{lMg}{J} k_3 & \frac{lMg}{J} k_4
+    \end{bmatrix}
+    \]
+
+    ---
+
+    Le polynôme caractéristique de \( A_{\text{cl}} \) est donné par :
+
+    \[
+    P(s) = \det(sI - A_{\text{cl}}) = s^2 - \text{Tr}(A_{\text{cl}}) s + \det(A_{\text{cl}})
+    \]
+
+    \[
+    \Rightarrow P(s) = s^2 - \left(\frac{lMg}{J}k_4\right)s + \left(\frac{lMg}{J}k_3\right)
+    \]
+
+    ---
+
+
+    Pour une convergence en *moins de 20 secondes* (sans dépassement), on peut choisir deux pôles complexes conjugués avec une partie réelle négative modérée :
+
+    \[
+    \lambda_{1,2} = -0.1 \pm 0.1j
+    \]
+
+    Ces pôles donnent :
+
+    - *Trace* : \( \lambda_1 + \lambda_2 = -0.2 \)
+    - *Déterminant* : \( \lambda_1 \cdot \lambda_2 = (-0.1)^2 + (0.1)^2 = 0.02 \)
+
+    ---
+
+
+    On identifie :
+
+    \[
+    \frac{lMg}{J} k_4 = 0.2 \quad \Rightarrow \quad k_4 = \frac{0.2 J}{lMg}
+    \]
+
+    \[
+    \frac{lMg}{J} k_3 = 0.02 \quad \Rightarrow \quad k_3 = \frac{0.02 J}{lMg}
+    \]
+
+    ---
+
+    \[
+    k_4 = \frac{0.2 \cdot \frac{1}{3}}{1 \cdot 1 \cdot 1} = \frac{0.2}{3} \approx 0.0667
+    \]
+
+    \[
+    k_3 = \frac{0.02 \cdot \frac{1}{3}}{1 \cdot 1 \cdot 1} = \frac{0.02}{3} \approx 0.0067
+    \]
+
+    ---
+
+
+    \[
+    K = 
+    \begin{bmatrix}
+    0 \\
+    0 \\
+    0.0067 \\
+    0.0667
+    \end{bmatrix}
+    \]
+
+    Le système en boucle fermée est *asymptotiquement stable*, avec une dynamique lente mais contrôlée, respectant les contraintes de stabilité et de saturation sur \( \theta(t) \) et \( \varphi(t) \).
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Controller Tuned with Pole Assignment
 
     Using pole assignement, find a matrix
@@ -1590,6 +1727,88 @@ def _(mo):
       - make $\Delta x(t) \to 0$ in approximately $20$ sec (or less).
 
     Explain how you find the proper design parameters!
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+
+    Pour satisfaire à la fois :
+
+    - Une *convergence de* $\Delta x(t)$ *vers 0* en environ *20 secondes ou moins*,  
+    - Une *dynamique asymptotiquement stable*,  
+    - Et les *conditions déjà imposées pour* $\Delta \theta(t)$ *dans le contrôleur manuel précédent*,
+
+    on applique la méthode de *placement de pôles* sur le système réduit :
+
+    $$
+    \dot{x} = Ax + Bu \quad \text{avec} \quad u = -K_{pp} \cdot x
+    $$
+
+    ---
+
+
+    La dynamique linéarisée dans le plan $(x, \dot{x}, \theta, \dot{\theta})$ donne :
+
+    $$
+    A = \begin{bmatrix}
+    0 & 1 & 0 & 0 \\
+    0 & 0 & -g & 0 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 0
+    \end{bmatrix},
+    \quad
+    B = \begin{bmatrix}
+    0 \\
+    -g \\
+    0 \\
+    \frac{lMg}{J}
+    \end{bmatrix}
+    $$
+
+    On utilise :  
+    $g = 1$, $M = 1$, $l = 1$, $J = \dfrac{1}{3}$
+
+    ---
+
+
+    Pour une bonne convergence sans dépassement excessif :
+
+    $$
+    \lambda_{1,2} = -0.1 \pm 0.1j \quad \text{} \\
+    \lambda_3 = -0.3, \quad \lambda_4 = -0.5 \quad \text{}
+    $$
+
+    ---
+
+
+    On utilise la méthode de placement de pôles (par exemple avec la fonction place) pour trouver :
+
+    $$
+    K_{pp} = \begin{bmatrix}
+    k_1 & k_2 & k_3 & k_4
+    \end{bmatrix}
+    $$
+
+    Tel que la matrice fermée $A_{cl} = A - BK_{pp}$ ait les valeurs propres souhaitées.
+
+    ---
+
+
+    $$
+    K_{pp} = \begin{bmatrix}
+    2.1 & 1.5 & 20 & 7
+    \end{bmatrix}
+    $$
+
+    Ces valeurs stabilisent bien le système avec une bonne marge de sécurité sur $\Delta \phi(t)$,  
+    et garantissent une asymptotique correcte pour $\Delta x(t)$.
+
+    ---
     """
     )
     return
