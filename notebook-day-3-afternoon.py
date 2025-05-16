@@ -2151,8 +2151,9 @@ def _(M, T, g, l, np):
             dy = dh_y + (l / 3) * np.sin(theta) * dtheta
 
             return x, dx, y, dy, theta, dtheta, z, dz
+    
     T(*T_inv(1.0,2.0,3.0,4.0,0.1,0.2,-0.3,-0.4))
-    return
+    return (T_inv,)
 
 
 @app.cell(hide_code=True)
@@ -2190,6 +2191,94 @@ def _(mo):
     that returns a function `fun` such that `fun(t)` is a value of `x, dx, y, dy, theta, dtheta, z, dz, f, phi` at time `t` that match the initial and final values provided as arguments to `compute`.
     """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    Déterminer une fonction `fun(t)` telle que pour tout \( t \in [0, t_f] \), elle retourne :
+
+    \[
+    [x(t), \dot{x}(t), y(t), \dot{y}(t), \theta(t), \dot{\theta}(t), z(t), \dot{z}(t), f(t), \phi(t)]
+    \]
+
+    Avec :
+    - \( f \) : force du moteur
+    - \( \phi \) : angle d’inclinaison de la poussée
+
+    ---
+
+    ## Méthode
+
+    1. **Interpolation cubique** des grandeurs physiques :
+       - \( x(t), y(t), \theta(t), z(t) \) avec contraintes sur les dérivées initiales/finales
+       - Forme : \( q(t) = a_0 + a_1 t + a_2 t^2 + a_3 t^3 \)
+
+    2. **Calcul de l'accélération** par dérivation seconde :
+       - \( \ddot{x}(t), \ddot{y}(t) \)
+
+    3. **Équilibre dynamique** (avec gravité) :
+       - \( f_x = M \ddot{x} \)
+       - \( f_y = M \ddot{y} + Mg \)
+
+    4. **Calcul de la poussée et de l'orientation moteur** :
+       - \( f(t) = \sqrt{f_x^2 + f_y^2} \)
+       - \( \phi(t) = \arctan2(-f_x, f_y) - \theta(t) \)
+    """
+    )
+    return
+
+
+@app.cell
+def _(T, T_inv, np):
+    def compute_cubique(q0, dq0, qf, dqf, tf):
+        A = np.array([
+            [1, 0,     0,       0],
+            [0, 1,     0,       0],
+            [1, tf, tf**2,   tf**3],
+            [0, 1,  2*tf, 3*tf**2]
+        ])
+        b = np.array([q0, dq0, qf, dqf])
+        return np.linalg.solve(A, b)
+
+    def compute(
+        x_0, dx_0, y_0, dy_0, theta_0, dtheta_0, z_0, dz_0,
+        x_tf, dx_tf, y_tf, dy_tf, theta_tf, dtheta_tf, z_tf, dz_tf,
+        tf
+    ):
+        h0 = T(x_0, dx_0, y_0, dy_0, theta_0, dtheta_0, z_0, dz_0)
+        h1 = T(x_tf, dx_tf, y_tf, dy_tf, theta_tf, dtheta_tf, z_tf, dz_tf)
+
+        chx = compute_cubique(h0[0], h0[1], h1[0], h1[1], tf)
+        chy = compute_cubique(h0[4], h0[5], h1[4], h1[5], tf)
+
+        def poly(c, t): return c[0] + c[1]*t + c[2]*t**2 + c[3]*t**3
+        def dpoly(c, t): return c[1] + 2*c[2]*t + 3*c[3]*t**2
+        def d2poly(c, t): return 2*c[2] + 6*c[3]*t
+        def d3poly(c, t): return 6*c[3]
+
+        def fun(t):
+            h_x = poly(chx, t)
+            dh_x = dpoly(chx, t)
+            d2h_x = d2poly(chx, t)
+            d3h_x = d3poly(chx, t)
+            h_y = poly(chy, t)
+            dh_y = dpoly(chy, t)
+            d2h_y = d2poly(chy, t)
+            d3h_y = d3poly(chy, t)
+
+            x, dx, y, dy, theta, dtheta, z, dz = T_inv(h_x, dh_x, d2h_x, d3h_x, h_y, dh_y, d2h_y, d3h_y)
+            f_x = -z * np.sin(theta)
+            f_y = z * np.cos(theta)
+            f = np.sqrt(f_x**2 + f_y**2)
+            phi = np.arctan2(f_x*np.cos(theta) + f_y*np.sin(theta),
+                             f_x*np.sin(theta) - f_y*np.cos(theta))
+
+            return np.array([x, dx, y, dy, theta, dtheta, z, dz, f, phi])
+
+        return fun
     return
 
 
