@@ -1786,7 +1786,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
@@ -1808,7 +1808,7 @@ def _(mo):
     - On a \( \ddot{x} \) et \( \ddot{y} \) sont déterminés par les forces \( (f_x, f_y) \)
 
     - $$
-      \ddot{x} = \frac{f_x}{m}, \quad \ddot{y} = \frac{f_y}{m}.
+      \ddot{x} = \frac{f_x}{m}, \quad \ddot{y} = \frac{f_y}{m} - g.
       $$
 
     - **Formules du contrôleur** pour \( f_x \) et \( f_y \) :  
@@ -1820,7 +1820,7 @@ def _(mo):
     $$
     \ddot{h} = \begin{bmatrix}
     \frac{f_x}{m} + \frac{\ell}{3} \sin\theta \cdot \dot{\theta}^2 - \frac{\ell}{3} \cos\theta \cdot \ddot{\theta} \\ 
-    \frac{f_y}{m} - \frac{\ell}{3} \cos\theta \cdot \dot{\theta}^2 - \frac{\ell}{3} \sin\theta \cdot \ddot{\theta}
+    \frac{f_y}{m} - g - \frac{\ell}{3} \cos\theta \cdot \dot{\theta}^2 - \frac{\ell}{3} \sin\theta \cdot \ddot{\theta}
     \end{bmatrix}
     $$
 
@@ -1829,7 +1829,7 @@ def _(mo):
     $$
     \ddot{h} = \begin{bmatrix}
     -\frac{z \sin\theta}{m} - \frac{\ell v_2^2 \cos\theta}{3z} - \frac{\ell \cos\theta \cdot \ddot{\theta}}{3} \\ 
-    \frac{z \cos\theta}{m} - \frac{\ell v_2^2 \sin\theta}{3z} - \frac{\ell \sin\theta \cdot \ddot{\theta}}{3}
+    \frac{z \cos\theta}{m} - g - \frac{\ell v_2^2 \sin\theta}{3z} - \frac{\ell \sin\theta \cdot \ddot{\theta}}{3}
     \end{bmatrix}
     $$
     """
