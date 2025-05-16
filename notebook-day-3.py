@@ -1715,7 +1715,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(l, np, plt):
     center = np.array([0, 5])
     thetas = [0, np.pi/4, np.pi/2]
@@ -1769,7 +1769,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -1779,6 +1779,57 @@ def _(mo):
     \dot{h} = \begin{bmatrix}
     \dot{x} - \frac{\ell}{3} \cos \theta \cdot \dot{\theta} \\
     \dot{y} - \frac{\ell}{3} \sin \theta \cdot \dot{\theta}
+    \end{bmatrix}
+    $$
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    ## Dérivée Seconde \( \ddot{h} \) :
+
+    On différencie \( \dot{h} \) par rapport au temps :
+
+    $$
+    \ddot{h} = \begin{bmatrix}
+    \ddot{x} + \frac{\ell}{3} \sin \theta \cdot \dot{\theta}^2 - \frac{\ell}{3} \cos \theta \cdot \ddot{\theta} \\
+    \ddot{y} - \frac{\ell}{3} \cos \theta \cdot \dot{\theta}^2 - \frac{\ell}{3} \sin \theta \cdot \ddot{\theta}
+    \end{bmatrix}.
+    $$
+
+    ### Expression de \( \ddot{h} \) en fonction de \( \theta \) et \( z \) :
+
+    Supposons que la dynamique du système original relie \( \ddot{x} \), \( \ddot{y} \), et \( \ddot{\theta} \) à \( \theta \) et \( z \). Par exemple :
+
+    - On a \( \ddot{x} \) et \( \ddot{y} \) sont déterminés par les forces \( (f_x, f_y) \)
+
+    - $$
+      \ddot{x} = \frac{f_x}{m}, \quad \ddot{y} = \frac{f_y}{m}.
+      $$
+
+    - **Formules du contrôleur** pour \( f_x \) et \( f_y \) :  
+      D'après le système auxiliaire
+
+    ### Substitution dans \( \ddot{h} \) :
+
+
+    $$
+    \ddot{h} = \begin{bmatrix}
+    \frac{f_x}{m} + \frac{\ell}{3} \sin\theta \cdot \dot{\theta}^2 - \frac{\ell}{3} \cos\theta \cdot \ddot{\theta} \\ 
+    \frac{f_y}{m} - \frac{\ell}{3} \cos\theta \cdot \dot{\theta}^2 - \frac{\ell}{3} \sin\theta \cdot \ddot{\theta}
+    \end{bmatrix}
+    $$
+
+    finalement: 
+
+    $$
+    \ddot{h} = \begin{bmatrix}
+    -\frac{z \sin\theta}{m} - \frac{\ell v_2^2 \cos\theta}{3z} - \frac{\ell \cos\theta \cdot \ddot{\theta}}{3} \\ 
+    \frac{z \cos\theta}{m} - \frac{\ell v_2^2 \sin\theta}{3z} - \frac{\ell \sin\theta \cdot \ddot{\theta}}{3}
     \end{bmatrix}
     $$
     """
