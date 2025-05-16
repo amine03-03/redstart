@@ -1685,6 +1685,72 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    ### Interprétation
+
+    Le point \( h \) est défini par :
+
+    \[
+    h = 
+    \begin{bmatrix}
+    x - \frac{\ell}{3} \sin \theta \\
+    y + \frac{\ell}{3} \cos \theta
+    \end{bmatrix}
+    \]
+
+    où :
+
+    - \( (x, y) \) est le *centre du booster*,
+    - \( 2\ell \) est la *longueur totale* du booster,
+    - \( \theta \) est l’*angle entre le booster et la verticale*.
+
+    ---
+
+
+    \( h \) représente un *point fixe* situé à *\( \ell/3 \)* *au-dessus du centre du booster, **dans sa direction actuelle* (définie par \( \theta \)).
+
+    - Si le booster est vertical (\( \theta = 0 \)), \( h \) est juste *au-dessus du centre*.
+    - Si le booster est incliné, \( h \) se déplace en suivant cette inclinaison.
+    """
+    )
+    return
+
+
+@app.cell
+def _(l, np, plt):
+    center = np.array([0, 5])
+    thetas = [0, np.pi/4, np.pi/2]
+    colors = ['r', 'g', 'b']
+    labels = [r'$\theta=0$', r'$\theta=\pi/4$', r'$\theta=\pi/2$']
+
+
+    plt.figure(figsize=(6, 6))
+    plt.axhline(0, color='gray', linewidth=0.5)
+    plt.axvline(0, color='gray', linewidth=0.5)
+
+    for theta, color, label in zip(thetas, colors, labels):
+        dir_vec = np.array([np.sin(theta), -np.cos(theta)])
+        end1 = center + l * dir_vec     
+        end2 = center - l * dir_vec    
+        h = center - (l/3) * dir_vec
+        plt.plot([end1[0], end2[0]], [end1[1], end2[1]], color=color, linestyle='-', linewidth=2, label=label)
+        plt.plot(h[0], h[1], 'o', color=color)
+        plt.text(h[0]+0.05, h[1]+0.05, 'h', color=color)
+
+
+    plt.gca().set_aspect('equal')
+    plt.legend()
+    plt.title("Position du point h pour différents angles θ (centre en (0,5))")
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.grid(True)
+    plt.show()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 First and Second-Order Derivatives
 
     Compute $\dot{h}$ as a function of $\dot{x}$, $\dot{y}$, $\theta$ and $\dot{\theta}$ (and constants) and then $\ddot{h}$ as a function of $\theta$ and $z$ (and constants) when the auxiliary system is plugged in the booster.
