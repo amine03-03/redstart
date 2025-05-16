@@ -1786,7 +1786,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -1824,14 +1824,34 @@ def _(mo):
     \end{bmatrix}
     $$
 
+
+    ---
+
     finalement: 
 
     $$
     \ddot{h} = \begin{bmatrix}
-    -\frac{z \sin\theta}{m} - \frac{\ell v_2^2 \cos\theta}{3z} - \frac{\ell \cos\theta \cdot \ddot{\theta}}{3} \\ 
-    \frac{z \cos\theta}{m} - g - \frac{\ell v_2^2 \sin\theta}{3z} - \frac{\ell \sin\theta \cdot \ddot{\theta}}{3}
+    -\frac{z \sin\theta}{m} - \frac{\ell v_2 \cos\theta}{3z} - \frac{\ell \cos\theta \cdot \ddot{\theta}}{3} \\ 
+    \frac{z \cos\theta}{m} - g - \frac{\ell v_2 \sin\theta}{3z} - \frac{\ell \sin\theta \cdot \ddot{\theta}}{3}
     \end{bmatrix}
     $$
+
+    D'aprés TMC et la force f exprimée dans l'énoncé on obtient
+
+    \[
+    \ddot{\theta} = -\frac{v_2}{z}
+    \]
+
+
+    Et finalement on trouve: 
+
+    \[
+    \ddot{h} =
+    \begin{bmatrix}
+    -\dfrac{z}{M} \sin\theta \\[4pt]
+    \dfrac{z}{M} \cos\theta - g
+    \end{bmatrix}
+    \]
     """
     )
     return
