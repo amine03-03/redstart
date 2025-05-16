@@ -1873,6 +1873,57 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    ### Troisième dérivée de \( \ddot{h} \)
+
+    On nous donne :
+
+    \[
+    \ddot{h} = \begin{bmatrix}
+    -\dfrac{z}{M} \sin\theta \\
+    \dfrac{z}{M} \cos\theta - g
+    \end{bmatrix}
+    \]
+
+    On dérive par rapport au temps \( t \) :
+
+    \[
+    \dddot{h} = \frac{d}{dt}\left( \ddot{h} \right)
+    = \begin{bmatrix}
+    - \frac{d}{dt} \left( \frac{z}{M} \sin\theta \right) \\
+    \frac{d}{dt} \left( \frac{z}{M} \cos\theta \right)
+    \end{bmatrix}
+    \]
+
+    En utilisant la règle du produit :
+
+    \[
+    \frac{d}{dt} \left( \frac{z}{M} \sin\theta \right)
+    = \frac{1}{M} \left( \dot{z} \sin\theta + z \cos\theta \cdot \dot{\theta} \right)
+    \]
+
+    \[
+    \frac{d}{dt} \left( \frac{z}{M} \cos\theta \right)
+    = \frac{1}{M} \left( \dot{z} \cos\theta - z \sin\theta \cdot \dot{\theta} \right)
+    \]
+
+    Expression finale pour \( \dddot{h} \) :
+
+    \[
+    \dddot{h} = \begin{bmatrix}
+    - \frac{1}{M} \left( \dot{z} \sin\theta + z \dot{\theta} \cos\theta \right) \\
+    \frac{1}{M} \left( \dot{z} \cos\theta - z \dot{\theta} \sin\theta \right)
+    \end{bmatrix}
+    \]
+
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Exact Linearization
 
     Show that with yet another auxiliary system with input $u=(u_1, u_2)$ and output $v$ fed into the previous one, we can achieve the dynamics
