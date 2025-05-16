@@ -1997,20 +1997,20 @@ def _(mo):
 @app.cell
 def _(M, g, l, np):
     def T(x, dx, y, dy, theta, dtheta, z, dz):
-        hx = x - (l / 3) * np.sin(theta)
-        hy = y + (l / 3) * np.cos(theta)
+            hx = x - (l / 3) * np.sin(theta)
+            hy = y + (l / 3) * np.cos(theta)
 
-        dhx = dx - (l / 3) * np.cos(theta) * dtheta
-        dhy = dy - (l / 3) * np.sin(theta) * dtheta
+            dhx = dx - (l / 3) * np.cos(theta) * dtheta
+            dhy = dy - (l / 3) * np.sin(theta) * dtheta
 
-        d2hx = (1 / M) * np.sin(theta) * z
-        d2hy = (1 / M) * -np.cos(theta) * z - g
+            d2hx = (1 / M) * np.sin(theta) * z
+            d2hy = (1 / M) * -np.cos(theta) * z - g
 
-        d3hx = (1 / M) * (np.cos(theta) * dtheta * z + np.sin(theta) * dz)
-        d3hy = (1 / M) * (np.sin(theta) * dtheta * z - np.cos(theta) * dz)
+            d3hx = (1 / M) * (np.cos(theta) * dtheta * z + np.sin(theta) * dz)
+            d3hy = (1 / M) * (np.sin(theta) * dtheta * z - np.cos(theta) * dz)
 
-        return hx, hy, dhx, dhy, d2hx, d2hy, d3hx, d3hy
-    return
+            return hx, hy, dhx, dhy, d2hx, d2hy, d3hx, d3hy
+    return (T,)
 
 
 @app.cell(hide_code=True)
@@ -2134,19 +2134,24 @@ def _(mo):
 
 
 @app.cell
-def _(M, l, np):
-    def T_inv(hx, hy, dhx, dhy, d2hx, d2hy, d3hx, d3hy):
-        theta = np.arctan2(d2hx, -d2hy)
-        norm_ddh = np.sqrt(d2hx*2 + d2hy*2)
-        z = M * norm_ddh
-        dtheta = M / z * (d3hx * np.cos(theta) + d3hy * np.sin(theta))
-        dz = M * (d3hx * np.sin(theta) - d3hy * np.cos(theta))
-        x = hx + (l/3) * np.sin(theta)
-        y = hy - (l/3) * np.cos(theta)
-        dx = dhx + (l/3) * np.cos(theta) * dtheta
-        dy = dhy + (l/3) * np.sin(theta) * dtheta
+def _(M, T, g, l, np):
+    def T_inv(h_x, h_y, dh_x, dh_y, d2h_x, d2h_y, d3h_x, d3h_y):  
 
-        return x, y, dx, dy, theta, dtheta, z, dz
+            theta = np.arctan2(-d2h_x, d2h_y + g)  
+
+            z = -M * np.sqrt(d2h_x**2 + (d2h_y + g)**2)
+
+            dtheta = (M / z) * (np.cos(theta) * d3h_x + np.sin(theta) * d3h_y)
+            dz = M * (np.sin(theta) * d3h_x - np.cos(theta)* d3h_y)
+
+            x = h_x + (l / 3) * np.sin(theta)
+            y = h_y - (l / 3) * np.cos(theta)
+
+            dx = dh_x + (l / 3) * np.cos(theta) * dtheta
+            dy = dh_y + (l / 3) * np.sin(theta) * dtheta
+
+            return x, dx, y, dy, theta, dtheta, z, dz
+    T(*T_inv(1.0,2.0,3.0,4.0,0.1,0.2,-0.3,-0.4))
     return
 
 
