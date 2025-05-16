@@ -2028,9 +2028,125 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r""" """)
+    mo.md(
+        r"""
+    # Inversion de la sortie vers l’état
+
+
+    ## Résolution \( \theta \)
+
+    *On a :*
+
+    \[
+    \ddot{h}_x = \frac{1}{M} \sin\theta \cdot z \quad ; \quad \ddot{h}_y = -\frac{1}{M} \cos\theta \cdot z
+    \]
+
+    En combinant les deux, on élimine \( z \) :
+
+    \[
+    \theta = \arctan2(\ddot{h}_x, -\ddot{h}_y)
+    \]
+
+
+    ---
+
+    ## Résolution \( z \)
+
+    \[
+    z = M \cdot \sqrt{\ddot{h}_x^2 + \ddot{h}_y^2} = M \cdot \| \ddot{h} \|
+    \]
+
+    ---
+
+    ## Résolution de \( \dot{\theta} \)
+
+    À partir de :
+
+
+    \[
+    h^{(3)}_x = \frac{1}{M} \left( \cos\theta \cdot \dot{\theta} \cdot z + \sin\theta \cdot \dot{z} \right)
+    \]
+
+    \[
+    h^{(3)}_y = \frac{1}{M} \left( \sin\theta \cdot \dot{\theta} \cdot z - \cos\theta \cdot \dot{z} \right)
+    \]
+
+    En multipliant et additionnant :
+
+
+    \[
+    M h^{(3)}_x \cos\theta + M h^{(3)}_y \sin\theta = \dot{\theta} \cdot z
+    \]
+
+    \[
+    \Rightarrow \dot{\theta} = \frac{M}{z} \left( h^{(3)}_x \cos\theta + h^{(3)}_y \sin\theta \right)
+    \]
+
+    ---
+
+    ## Résolution de \( \dot{z} \)
+
+    Autre combinaison linéaire :
+
+    \[
+    M h^{(3)}_x \sin\theta - M h^{(3)}_y \cos\theta = \dot{z}
+    \]
+
+    \[
+    \Rightarrow \dot{z} = M \left( h^{(3)}_x \sin\theta - h^{(3)}_y \cos\theta \right)
+    \]
+
+    ---
+
+    ## Résolution de \( x, y \)
+
+    À partir de la géométrie :
+
+    \[
+    x = h_x + \frac{l}{3} \sin\theta \quad ; \quad y = h_y - \frac{l}{3} \cos\theta
+    \]
+
+    ---
+
+    ## Résolution de \( \dot{x}, \dot{y} \)
+
+    En dérivant la relation précédente :
+
+    \[
+    \dot{x} = \dot{h}_x + \frac{l}{3} \cos\theta \cdot \dot{\theta}
+    \]
+
+    \[
+    \dot{y} = \dot{h}_y + \frac{l}{3} \sin\theta \cdot \dot{\theta}
+    \]
+
+
+    À partir de \( h, \dot{h}, \ddot{h}, h^{(3)} \), on peut retrouver l’état complet :
+    - \( x, y \)
+    - \( \dot{x}, \dot{y} \)
+    - \( \theta, \dot{\theta} \)
+    - \( z, \dot{z} \)
+    """
+    )
+    return
+
+
+@app.cell
+def _(M, l, np):
+    def T_inv(hx, hy, dhx, dhy, d2hx, d2hy, d3hx, d3hy):
+        theta = np.arctan2(d2hx, -d2hy)
+        norm_ddh = np.sqrt(d2hx*2 + d2hy*2)
+        z = M * norm_ddh
+        dtheta = M / z * (d3hx * np.cos(theta) + d3hy * np.sin(theta))
+        dz = M * (d3hx * np.sin(theta) - d3hy * np.cos(theta))
+        x = hx + (l/3) * np.sin(theta)
+        y = hy - (l/3) * np.cos(theta)
+        dx = dhx + (l/3) * np.cos(theta) * dtheta
+        dy = dhy + (l/3) * np.sin(theta) * dtheta
+
+        return x, y, dx, dy, theta, dtheta, z, dz
     return
 
 
