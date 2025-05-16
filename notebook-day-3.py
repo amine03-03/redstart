@@ -1721,29 +1721,39 @@ def _(l, np, plt):
     thetas = [0, np.pi/4, np.pi/2]
     colors = ['r', 'g', 'b']
     labels = [r'$\theta=0$', r'$\theta=\pi/4$', r'$\theta=\pi/2$']
+    booster_width = 0.1  
 
-
-    plt.figure(figsize=(6, 6))
-    plt.axhline(0, color='gray', linewidth=0.5)
-    plt.axvline(0, color='gray', linewidth=0.5)
-
-    for theta, color, label in zip(thetas, colors, labels):
+    for i, (theta, color, label) in enumerate(zip(thetas, colors, labels)):
+        plt.figure(figsize=(12,12))
+        plt.axhline(0, color='gray', linewidth=0.5)
+        plt.axvline(0, color='gray', linewidth=0.5)
         dir_vec = np.array([np.sin(theta), -np.cos(theta)])
-        end1 = center + l * dir_vec     
-        end2 = center - l * dir_vec    
-        h = center - (l/3) * dir_vec
-        plt.plot([end1[0], end2[0]], [end1[1], end2[1]], color=color, linestyle='-', linewidth=2, label=label)
-        plt.plot(h[0], h[1], 'o', color=color)
-        plt.text(h[0]+0.05, h[1]+0.05, 'h', color=color)
+        perp_vec = np.array([np.cos(theta), np.sin(theta)])  
+        end1 = center + l * dir_vec
+        end2 = center - l * dir_vec
+        corner1 = end1 + (booster_width / 2) * perp_vec
+        corner2 = end1 - (booster_width / 2) * perp_vec
+        corner3 = end2 - (booster_width / 2) * perp_vec
+        corner4 = end2 + (booster_width / 2) * perp_vec
+        booster_shape = np.array([corner1, corner2, corner3, corner4, corner1])  
+        plt.fill(booster_shape[:, 0], booster_shape[:, 1], color=color, alpha=0.4, label=label)
 
+        plt.plot(center[0], center[1], 'ko', label='Centre (x, y)')
+        plt.text(center[0] + 0.05, center[1] + 0.05, 'Centre', fontsize=9)
 
-    plt.gca().set_aspect('equal')
-    plt.legend()
-    plt.title("Position du point h pour différents angles θ (centre en (0,5))")
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.grid(True)
-    plt.show()
+        h = center - (l / 3) * dir_vec
+        plt.plot(h[0], h[1], 'o', color=color, markersize=10, label='Point h')
+        plt.text(h[0] + 0.05, h[1] + 0.05, 'h', color=color, fontsize=12)
+
+        plt.gca().set_aspect('equal')
+        plt.title(f"Booster et point h pour {label}")
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.grid(True)
+        plt.legend()
+
+        plt.savefig(f"booster_point_h_theta_{i}.png")
+        plt.show()
     return
 
 
@@ -1754,6 +1764,23 @@ def _(mo):
     ## 🧩 First and Second-Order Derivatives
 
     Compute $\dot{h}$ as a function of $\dot{x}$, $\dot{y}$, $\theta$ and $\dot{\theta}$ (and constants) and then $\ddot{h}$ as a function of $\theta$ and $z$ (and constants) when the auxiliary system is plugged in the booster.
+    """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    La dérivée première de $$h$$ est :
+
+    $$
+    \dot{h} = \begin{bmatrix}
+    \dot{x} - \frac{\ell}{3} \cos \theta \cdot \dot{\theta} \\
+    \dot{y} - \frac{\ell}{3} \sin \theta \cdot \dot{\theta}
+    \end{bmatrix}
+    $$
     """
     )
     return
