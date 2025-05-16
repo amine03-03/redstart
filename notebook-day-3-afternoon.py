@@ -2279,7 +2279,7 @@ def _(T, T_inv, np):
             return np.array([x, dx, y, dy, theta, dtheta, z, dz, f, phi])
 
         return fun
-    return
+    return (compute,)
 
 
 @app.cell(hide_code=True)
@@ -2297,6 +2297,125 @@ def _(mo):
     Make the graph of the relevant variables as a function of time, then make a video out of the same result. Comment and iterate if necessary!
     """
     )
+    return
+
+
+@app.cell
+def _(FFMpegWriter, FuncAnimation, M, compute, fun, g, l, np, plt):
+    def run_simulation(
+        compute,
+        x_0, dx_0, y_0, dy_0, theta_0, dtheta_0, z_0, dz_0, x_tf, dx_tf, y_tf, dy_tf, theta_tf, dtheta_tf, z_tf, dz_tf, tf
+    ):
+        fun1 = compute(
+            x_0, dx_0, y_0, dy_0, theta_0, dtheta_0, z_0, dz_0,
+            x_tf, dx_tf, y_tf, dy_tf, theta_tf, dtheta_tf, z_tf, dz_tf,
+            tf,
+        )
+        return fun1
+
+
+    def plot_trajectories(fun1, tf):
+        times = np.linspace(0, tf, 500)
+        x_vals, dx_vals = [], []
+        y_vals, dy_vals = [], []
+        theta_vals, dtheta_vals = [], []
+        z_vals, dz_vals = [], []
+        f_vals, phi_vals = [], []
+
+        for t in times:
+            x, dx, y, dy, theta, dtheta, z, dz, f, phi = fun(t)
+            x_vals.append(x)
+            dx_vals.append(dx)
+            y_vals.append(y)
+            dy_vals.append(dy)
+            theta_vals.append(theta)
+            dtheta_vals.append(dtheta)
+            z_vals.append(z)
+            dz_vals.append(dz)
+            f_vals.append(f)
+            phi_vals.append(phi)
+
+        plt.figure(figsize=(14,10))
+
+        plt.subplot(3,2,1)
+        plt.plot(times, x_vals)
+        plt.title('x(t)')
+        plt.grid()
+
+        plt.subplot(3,2,2)
+        plt.plot(times, y_vals)
+        plt.title('y(t)')
+        plt.grid()
+
+        plt.subplot(3,2,3)
+        plt.plot(times, theta_vals)
+        plt.title('theta(t)')
+        plt.grid()
+
+        plt.subplot(3,2,4)
+        plt.plot(times, z_vals)
+        plt.title('z(t)')
+        plt.grid()
+
+        plt.subplot(3,2,5)
+        plt.plot(times, f_vals)
+        plt.title('f(t) (Control input)')
+        plt.grid()
+
+        plt.subplot(3,2,6)
+        plt.plot(times, phi_vals)
+        plt.title('phi(t) (Control input)')
+        plt.grid()
+
+        plt.tight_layout()
+        plt.show()
+
+
+    def create_animation(fun,  filename="booster_trajectory.mp4", tf=10.0):
+        times = np.linspace(0, tf, 300)
+        data = [fun1(t) for t in times]
+        x_vals, dx_vals, y_vals, dy_vals, theta_vals, dtheta_vals, z_vals, dz_vals, f_vals, phi_vals = zip(*data)
+
+        fig, ax = plt.subplots(figsize=(5, 8))
+
+        def draw_booster(ax, x, y, theta, f, phi):
+            ax.clear()
+            dx = l * np.sin(theta)
+            dy = l * np.cos(theta)
+            x0, y0 = x - dx, y - dy
+            x1, y1 = x + dx, y + dy
+            ax.plot([x0, x1], [y0, y1], 'k-', lw=4)
+
+            flame_len = (f / (M * g)) * l
+            fx = flame_len * np.sin(theta + phi)
+            fy = flame_len * np.cos(theta + phi)
+            ax.plot([x0, x0 - fx], [y0, y0 - fy], color='orange', lw=3)
+
+            ax.set_xlim(-2, 6)
+            ax.set_ylim(0, 22)
+            ax.set_aspect("equal")
+            ax.set_title("Booster Trajectory (Exact Linearization)")
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_facecolor("aliceblue")
+
+        def update(frame):
+            draw_booster(ax, x_vals[frame], y_vals[frame], theta_vals[frame], f_vals[frame], phi_vals[frame])
+
+        ani = FuncAnimation(fig, update, frames=len(times), interval=50)
+        writer = FFMpegWriter(fps=20)
+        ani.save(filename, writer=writer)
+        plt.close()
+        print(f"Animation saved to {filename}")
+
+
+    fun1 = run_simulation(compute, 5.0, 0.0, 20.0, -1.0, -np.pi/8, 0.0, -M*g, 0.0, 0.0, 0.0, 4/3*l, 0.0, 0.0, 0.0, -M*g, 0.0, 10 )
+    create_animation(fun1, filename="booster_traje.mp4", tf=10)
+    return
+
+
+@app.cell
+def _():
     return
 
 
